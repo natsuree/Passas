@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ===== White Modern Modal Style ===== */
+/* ===== White Modern Modal Style ===== */
+.modal-content {
+  background: #ffffff;
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease;
+}
+
+.modal-header {
+  border-bottom: none;
+  background-color: #f8f9fa;
+  border-radius: 15px 15px 0 0;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-body img {
+  border-radius: 10px;
+  max-width: 100%;
+  margin-bottom: 10px;
+}
+
+.modal-body p {
+  color: #555;
+  font-size: 15px;
+}
+
+.modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  border-radius: 0 0 15px 15px;
+}
+
+.modal.fade .modal-dialog {
+  transform: scale(0.9);
+  transition: transform 0.25s ease-out;
+}
+.modal.show .modal-dialog {
+  transform: scale(1);
+}
+
+/* Interested List Cards */
+#interestedList .border {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+#interestedList .border:hover {
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  transform: scale(1.02);
+}
+
+/* Buttons inside modal */
+.btn-interested {
+  background-color: #0d6efd; /* Bootstrap blue */
+  color: #fff;
+  border: none;
+  transition: background 0.3s;
+}
+.btn-interested:hover {
+  background-color: #ffc107;
+}
+
+.btn-view-interested {
+  background-color: #e9ecef; /* soft gray */
+  color: #333;
+  border: none;
+  transition: background 0.3s;
+}
+.btn-view-interested:hover {
+  background-color: #d6d8db;
+}
+
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+
+}
+body {
+  background-color: rgb(0, 0, 0);
+  color: rgb(0, 0, 0);
+  overflow-x: hidden;
+}
+/* navbar section */
+.navbar {
+    padding: 20px;
+    background-color: #2f2f2f !important; /* force dark gray */
+}
+
+/* ensure collapsed area and links inherit same background */
+.navbar .navbar-collapse,
+.navbar .navbar-nav,
+.navbar .nav-item,
+.navbar .nav-link,
+.navbar .dropdown-menu {
+    background-color: #2f2f2f !important;
+}
+
+.navbar .navbar-brand {
+    color: #cac8c8 !important;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.navbar .navbar-brand i {
+    font-size: 25px;
+    background: #2f2f2f;
+    border-radius: 50%;
+    padding: 10px 15px;
+    color: #fff;
+}
+
+.navbar .navbar-toggler {
+    color: #fff !important;
+    background-color: #444;
+    border-radius: 50%;
+    padding: 10px;
+    outline: none;
+    border: none;
+}
+
+.navbar .nav-link {
+    color: #f1f1f1 !important;
+    font-size: 18px;
+    margin-right: 40px;
+    text-decoration: none;
+}
+
+.navbar .nav-link:hover {
+    color: #ffc107 !important;
+}
+
+.navbar .dropdown-menu {
+    background-color: #2f2f2f !important;
+    border: none;
+}
+
+.navbar .dropdown-item {
+    color: #f1f1f1 !important;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: #3a3a3a !important;
+    color: #4da3ff !important;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+

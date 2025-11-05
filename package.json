@@ -1,0 +1,16 @@
+{
+  "name": "passa",
+  "version": "1.0.0",
+  "description": "<h1 style=\"color:blue;\">PHP MySQL User Signup Login System</h1>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cloudinary": "^2.8.0",
+    "firebase": "^12.4.0"
+  }
+}

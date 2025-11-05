@@ -1,0 +1,45 @@
+body {
+  position: relative;
+  height: 100vh;
+  background: url('../image/1.jpg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🔹 Dark overlay for background */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55); /* adjust 0.55–0.7 for darkness level */
+  z-index: 0;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056d6);
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Ensure the card appears above the overlay */
+.signup-card {
+  position: relative;
+  z-index: 1;
+  max-width: 500px;
+  width: 90%;
+  margin: 60px auto;
+  padding: 30px;
+  background: rgb(255, 253, 253); /* semi-transparent white for glass look */
+  backdrop-filter: blur(10px); /* adds subtle blur */
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #000000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Optional: hover effect for a modern feel */
+.signup-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}

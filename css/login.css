@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* 🔹 Full-page background with dark overlay and border effect */
+body {
+  position: relative;
+  height: 100vh;
+  background: url('../image/1.jpg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* 🔹 Dark overlay for background */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 0;
+}
+
+/* keep everything above overlay */
+body * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 🔹 Card styling */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  padding: 35px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.card h3 {
+  color: #222;
+  font-weight: 600;
+}
+
+.form-label {
+  color: #333;
+  font-weight: 500;
+}
+
+input.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+input.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* 🔹 Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056d6);
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  transition: 0.2s ease;
+}
+
+.btn-outline-danger {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* 🔹 Links */
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
