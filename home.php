@@ -88,7 +88,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p>Select one of your items to offer in trade:</p>
         <div id="myTradeItems" class="row g-3"></div>
         <div class="mt-3">
           <textarea id="tradeMessage" class="form-control" rows="3" placeholder="Add a message to your trade..."></textarea>
@@ -125,139 +124,153 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-  import { getDatabase, ref, onValue, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-  import { openTradeModal } from "./js/trade.js";
-  const firebaseConfig = {
-    apiKey: "AIzaSyAq6TIgqizXPlSs8fw5EUy7DVexM6MlyxQ",
-    authDomain: "soft-engr.firebaseapp.com",
-    databaseURL: "https://soft-engr-default-rtdb.firebaseio.com",
-    projectId: "soft-engr",
-    storageBucket: "soft-engr.firebasestorage.app",
-    messagingSenderId: "623763613209",
-    appId: "1:623763613209:web:33152fe31ad0b256db6c88"
-  };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getDatabase, ref, onValue, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyAq6TIgqizXPlSs8fw5EUy7DVexM6MlyxQ",
+  authDomain: "soft-engr.firebaseapp.com",
+  databaseURL: "https://soft-engr-default-rtdb.firebaseio.com",
+  projectId: "soft-engr",
+  storageBucket: "soft-engr.firebasestorage.app",
+  messagingSenderId: "623763613209",
+  appId: "1:623763613209:web:33152fe31ad0b256db6c88"
+};
 
-  const itemContainer = document.getElementById("itemContainer");
-  const searchInput = document.getElementById("searchInput");
-  const itemModal = new bootstrap.Modal(document.getElementById("itemModal"));
-  const interestedModal = new bootstrap.Modal(document.getElementById("interestedModal"));
-  const tradeModal = new bootstrap.Modal(document.getElementById("tradeModal"));
-  const tradeListModal = new bootstrap.Modal(document.getElementById("tradeListModal"));
-  const tradeMessage = document.getElementById("tradeMessage");
-  const submitTradeBtn = document.getElementById("submitTradeBtn");
-  const tradeListDiv = document.getElementById("tradeList");
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-  let allItems = {};
-  let selectedItemId = null;
+// Elements
+const itemContainer = document.getElementById("itemContainer");
+const searchInput = document.getElementById("searchInput");
+const itemModal = new bootstrap.Modal(document.getElementById("itemModal"));
+const interestedModal = new bootstrap.Modal(document.getElementById("interestedModal"));
+const tradeModal = new bootstrap.Modal(document.getElementById("tradeModal"));
+const tradeListModal = new bootstrap.Modal(document.getElementById("tradeListModal"));
+const tradeMessage = document.getElementById("tradeMessage");
+const submitTradeBtn = document.getElementById("submitTradeBtn");
+const tradeListDiv = document.getElementById("tradeList");
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) return (window.location.href = "login.php");
+let allItems = {};
+let selectedItemId = null;
 
-    const itemsRef = ref(db, "items");
-    onValue(itemsRef, (snapshot) => {
-      itemContainer.innerHTML = "";
-      allItems = snapshot.val() || {};
+// Listen for auth
+onAuthStateChanged(auth, (user) => {
+  if (!user) return (window.location.href = "login.php");
 
-      Object.entries(allItems).forEach(([id, item]) => {
-        const tradeBadge = item.openForTrade
-          ? `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Open for Trade</span>`
-          : "";
+  // Load all items
+  const itemsRef = ref(db, "items");
+  onValue(itemsRef, (snapshot) => {
+    itemContainer.innerHTML = "";
+    allItems = snapshot.val() || {};
 
-        const card = document.createElement("div");
-        card.className = "col-12 col-sm-6 col-md-4 position-relative";
-        card.innerHTML = `
-          <div class="card shadow-sm h-100 item-card" data-id="${id}">
-            ${tradeBadge}
-            <img src="${item.photoURL}" class="card-img-top" style="height: 220px; object-fit: cover;">
-            <div class="card-body">
-              <h5 class="card-title">${item.name}</h5>
-              <p class="text-muted">${item.description.substring(0, 80)}...</p>
-              <button class="btn btn-outline-primary btn-sm w-100 view-btn">View Details</button>
-            </div>
-          </div>`;
-        itemContainer.appendChild(card);
-      });
+    Object.entries(allItems).forEach(([id, item]) => {
+      const tradeBadge = item.openForTrade
+        ? `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Open for Trade</span>`
+        : "";
 
-      document.querySelectorAll(".view-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          const id = e.target.closest(".item-card").dataset.id;
-          showItemModal(id, user);
-        });
-      });
+      const card = document.createElement("div");
+      card.className = "col-12 col-sm-6 col-md-4 position-relative";
+      card.innerHTML = `
+        <div class="card shadow-sm h-100 item-card" data-id="${id}">
+          ${tradeBadge}
+          <img src="${item.photoURL}" class="card-img-top" style="height: 220px; object-fit: cover;">
+          <div class="card-body">
+            <h5 class="card-title">${item.name}</h5>
+            <p class="text-muted">${item.description.substring(0, 80)}...</p>
+            <button class="btn btn-outline-primary btn-sm w-100 view-btn">View Details</button>
+          </div>
+        </div>`;
+      itemContainer.appendChild(card);
     });
 
-    searchInput.addEventListener("input", (e) => {
-      const q = e.target.value.toLowerCase();
-      document.querySelectorAll(".item-card").forEach(card => {
-        const title = card.querySelector(".card-title").textContent.toLowerCase();
-        card.style.display = title.includes(q) ? "" : "none";
+    document.querySelectorAll(".view-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const id = e.target.closest(".item-card").dataset.id;
+        showItemModal(id, user);
       });
-    });
-
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "index.php";
     });
   });
 
-  async function showItemModal(id, user) {
-    const item = allItems[id];
-    selectedItemId = id;
-    document.getElementById("modalTitle").textContent = item.name;
-    document.getElementById("modalImage").src = item.photoURL;
-    document.getElementById("modalDescription").textContent = item.description;
+  // Search
+  searchInput.addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll(".item-card").forEach(card => {
+      const title = card.querySelector(".card-title").textContent.toLowerCase();
+      card.style.display = title.includes(q) ? "" : "none";
+    });
+  });
 
-    try {
-      const userRef = ref(db, `users/${item.userId}`);
-      const userSnap = await get(userRef);
-      const userData = userSnap.val() || {};
-      document.getElementById("uploaderName").textContent = userData.fullName || "Unknown";
-      document.getElementById("uploaderAddress").textContent = userData.address || "Not provided";
-      document.getElementById("uploaderContact").textContent = userData.contact || "Not provided";
-    } catch (err) {
-      console.error("Error fetching uploader info:", err);
-    }
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "index.php";
+  });
+});
 
-    const footer = document.getElementById("modalButtons");
-    footer.innerHTML = "";
+// Show item modal
+async function showItemModal(id, user) {
+  const item = allItems[id];
+  selectedItemId = id;
+  document.getElementById("modalTitle").textContent = item.name;
+  document.getElementById("modalImage").src = item.photoURL;
+  document.getElementById("modalDescription").textContent = item.description;
 
-    if (item.userId === user.uid) {
-      const interestedBtn = document.createElement("button");
-      interestedBtn.className = "btn btn-primary";
-      interestedBtn.textContent = "View Interested Users";
-      interestedBtn.onclick = () => loadInterestedUsers(id);
-      footer.appendChild(interestedBtn);
+  try {
+    const userRef = ref(db, `users/${item.userId}`);
+    const userSnap = await get(userRef);
+    const userData = userSnap.val() || {};
+    document.getElementById("uploaderName").textContent = userData.fullName || "Unknown";
+    document.getElementById("uploaderAddress").textContent = userData.address || "Not provided";
+    document.getElementById("uploaderContact").textContent = userData.contact || "Not provided";
+  } catch (err) {
+    console.error("Error fetching uploader info:", err);
+  }
 
-      const tradeBtn = document.createElement("button");
-      tradeBtn.className = "btn btn-warning ms-2";
-      tradeBtn.textContent = "View Trade Proposals";
-      tradeBtn.onclick = () => loadTradeProposals(id);
-      footer.appendChild(tradeBtn);
-    } else {
-      const interestBtn = document.createElement("button");
-      interestBtn.className = "btn btn-success";
-      interestBtn.textContent = "I'm Interested";
-      interestBtn.onclick = () => markInterested(id, user);
-      footer.appendChild(interestBtn);
+  const footer = document.getElementById("modalButtons");
+  footer.innerHTML = "";
 
-      if (item.openForTrade) {
+  if (item.userId === user.uid) {
+    // Owner’s options
+    const interestedBtn = document.createElement("button");
+    interestedBtn.className = "btn btn-primary";
+    interestedBtn.textContent = "View Interested Users";
+    interestedBtn.onclick = () => loadInterestedUsers(id);
+    footer.appendChild(interestedBtn);
+
+    const tradeBtn = document.createElement("button");
+    tradeBtn.className = "btn btn-warning ms-2";
+    tradeBtn.textContent = "View Trade Proposals";
+    tradeBtn.onclick = () => loadTradeProposals(id);
+    footer.appendChild(tradeBtn);
+  } else {
+    // Other users’ options
+    const interestBtn = document.createElement("button");
+    interestBtn.className = "btn btn-success";
+    interestBtn.textContent = "I'm Interested";
+    interestBtn.onclick = () => markInterested(id, user);
+    footer.appendChild(interestBtn);
+
+    if (item.openForTrade) {
       const tradeBtn = document.createElement("button");
       tradeBtn.className = "btn btn-warning ms-2";
       tradeBtn.textContent = "Propose Trade";
-      tradeBtn.onclick = () => openTradeModal(id, user, db);
+      tradeBtn.onclick = () => openTradeModal(id, user);
       footer.appendChild(tradeBtn);
     }
-
-    }
-
-    itemModal.show();
   }
+
+  itemModal.show();
+}
+
+// Open Trade Modal
+function openTradeModal(itemId, user) {
+  selectedItemId = itemId;
+  tradeMessage.value = "";
+  tradeModal.show();
+}
 
 // Send Trade Proposal
 submitTradeBtn.addEventListener("click", async () => {
@@ -265,15 +278,23 @@ submitTradeBtn.addEventListener("click", async () => {
   if (!message) return showAlert("Please enter your trade proposal first.", "warning");
 
   if (!selectedItemId || !auth.currentUser?.uid) {
-    console.error("❌ Missing itemId or userId, trade not saved.");
+    console.error("Missing itemId or userId.");
     showAlert("Something went wrong — trade not saved.", "danger");
     return;
   }
 
-  const tradeRef = ref(db, `trades/${selectedItemId}/${auth.currentUser.uid}`);
+  const targetItem = allItems[selectedItemId];
+  if (!targetItem) return showAlert("Item not found.", "danger");
+
+  const ownerId = targetItem.userId;
+  const proposerId = auth.currentUser.uid;
+
+  // Save under owner’s node so both users can track
+  const tradeRef = ref(db, `trades/${ownerId}/${proposerId}/${selectedItemId}`);
   await set(tradeRef, {
     message,
-    userId: auth.currentUser.uid,
+    proposerId,
+    itemId: selectedItemId,
     timestamp: new Date().toISOString(),
     status: "Pending"
   });
@@ -285,8 +306,12 @@ submitTradeBtn.addEventListener("click", async () => {
 
 // Load Trade Proposals
 async function loadTradeProposals(itemId) {
+  const item = allItems[itemId];
+  if (!item) return;
+  const ownerId = item.userId;
+
   tradeListDiv.innerHTML = "<p class='text-muted'>Loading trade proposals...</p>";
-  const tradeRef = ref(db, `trades/${itemId}`);
+  const tradeRef = ref(db, `trades/${ownerId}`);
   const snapshot = await get(tradeRef);
 
   if (!snapshot.exists()) {
@@ -295,119 +320,81 @@ async function loadTradeProposals(itemId) {
     return;
   }
 
-  const proposals = snapshot.val();
-  const entries = Object.entries(proposals);
-
   let content = "";
-  for (const [uid, trade] of entries) {
-    const userRef = ref(db, `users/${uid}`);
-    const userSnap = await get(userRef);
-    const userData = userSnap.val() || {};
+  const proposers = snapshot.val();
 
-    const isOwner = auth.currentUser.uid !== uid;
-    const isSender = auth.currentUser.uid === uid;
+  for (const [proposerId, trades] of Object.entries(proposers)) {
+    for (const [tradeItemId, trade] of Object.entries(trades)) {
+      if (trade.itemId !== itemId) continue;
 
-    content += `
-      <div class="border rounded p-3 mb-3">
-        <p><strong>Message:</strong> ${trade.message}</p>
-        <small class="text-muted">Sent: ${new Date(trade.timestamp).toLocaleString()}</small><br>
-        <small><strong>Status:</strong> ${trade.status}</small>
-        <div class="mt-2">
-          <p class="mb-1"><strong>From:</strong> ${userData.username || userData.fullName || "Unknown"}</p>
-          <small>📞 ${userData.contact || "No contact info"}</small><br>
-          <small>📍 ${userData.address || "No address provided"}</small>
-        </div>
-        <div class="mt-3 d-flex gap-2">
-          ${
-            isOwner && trade.status === "Pending"
-              ? `
-                <button class="btn btn-success btn-sm acceptTrade" data-uid="${uid}" data-item="${itemId}">Accept</button>
-                <button class="btn btn-danger btn-sm declineTrade" data-uid="${uid}" data-item="${itemId}">Decline</button>
-              `
-              : ""
-          }
-          ${
-            isSender && trade.status === "Pending"
-              ? `<button class="btn btn-secondary btn-sm cancelTrade" data-uid="${uid}" data-item="${itemId}">Cancel Trade</button>`
-              : ""
-          }
-        </div>
-      </div>
-    `;
+      const userRef = ref(db, `users/${proposerId}`);
+      const userSnap = await get(userRef);
+      const userData = userSnap.val() || {};
+
+      const isOwner = auth.currentUser.uid === ownerId;
+      const isSender = auth.currentUser.uid === proposerId;
+
+      content += `
+        <div class="border rounded p-3 mb-3">
+          <p><strong>Message:</strong> ${trade.message}</p>
+          <small class="text-muted">Sent: ${new Date(trade.timestamp).toLocaleString()}</small><br>
+          <small><strong>Status:</strong> ${trade.status}</small>
+          <div class="mt-2">
+            <p class="mb-1"><strong>User:</strong> ${userData.fullName || "Unknown"}</p>
+            <small>📞 ${userData.contact || "No contact info"}</small><br>
+            <small>📍 ${userData.address || "No address provided"}</small>
+          </div>
+          <div class="mt-3 d-flex gap-2">
+            ${
+              isOwner && trade.status === "Pending"
+                ? `
+                  <button class="btn btn-success btn-sm acceptTrade" data-owner="${ownerId}" data-proposer="${proposerId}" data-item="${itemId}">Accept</button>
+                  <button class="btn btn-danger btn-sm declineTrade" data-owner="${ownerId}" data-proposer="${proposerId}" data-item="${itemId}">Decline</button>
+                `
+                : ""
+            }
+            ${
+              isSender && trade.status === "Pending"
+                ? `<button class="btn btn-secondary btn-sm cancelTrade" data-owner="${ownerId}" data-proposer="${proposerId}" data-item="${itemId}">Cancel</button>`
+                : ""
+            }
+          </div>
+        </div>`;
+    }
   }
 
-  tradeListDiv.innerHTML = content;
+  tradeListDiv.innerHTML = content || "<p class='text-center text-muted'>No trades for this item yet.</p>";
   tradeListModal.show();
 
-  // Accept Trade
   document.querySelectorAll(".acceptTrade").forEach(btn => {
     btn.addEventListener("click", async (e) => {
-      const { uid, item } = e.target.dataset;
-
-      await update(ref(db, `trades/${item}/${uid}`), { status: "Accepted" });
-
-      const notifRef = ref(db, `notifications/${uid}`);
-      const newNotifKey = push(notifRef);
-      await set(newNotifKey, {
-        type: "tradeAccepted",
-        message: "Your trade proposal was accepted!",
-        tradeItemId: item,
-        timestamp: new Date().toISOString(),
-        read: false
-      });
-
-      showAlert("✅ Trade accepted! The proposer has been notified.", "success");
+      const { owner, proposer, item } = e.target.dataset;
+      await update(ref(db, `trades/${owner}/${proposer}/${item}`), { status: "Accepted" });
+      showAlert("✅ Trade accepted!", "success");
       loadTradeProposals(item);
     });
   });
 
-  // Decline Trade
   document.querySelectorAll(".declineTrade").forEach(btn => {
     btn.addEventListener("click", async (e) => {
-      const { uid, item } = e.target.dataset;
-      await update(ref(db, `trades/${item}/${uid}`), { status: "Declined" });
-
-      const notifRef = ref(db, `notifications/${uid}`);
-      const newNotifKey = push(notifRef);
-      await set(newNotifKey, {
-        type: "tradeDeclined",
-        message: "Your trade proposal was declined.",
-        tradeItemId: item,
-        timestamp: new Date().toISOString(),
-        read: false
-      });
-
-      showAlert("🚫 Trade declined and proposer notified.", "warning");
+      const { owner, proposer, item } = e.target.dataset;
+      await update(ref(db, `trades/${owner}/${proposer}/${item}`), { status: "Declined" });
+      showAlert("🚫 Trade declined.", "warning");
       loadTradeProposals(item);
     });
   });
 
-  // Cancel Trade (for proposer)
   document.querySelectorAll(".cancelTrade").forEach(btn => {
     btn.addEventListener("click", async (e) => {
-      const { uid, item } = e.target.dataset;
-      const confirmCancel = confirm("Are you sure you want to cancel this trade?");
-      if (!confirmCancel) return;
-
-      await update(ref(db, `trades/${item}/${uid}`), { status: "Cancelled" });
-
-      const notifRef = ref(db, `notifications/${item}`); // notify the owner
-      const newNotifKey = push(notifRef);
-      await set(newNotifKey, {
-        type: "tradeCancelled",
-        message: "The proposer has cancelled their trade.",
-        tradeItemId: item,
-        timestamp: new Date().toISOString(),
-        read: false
-      });
-
-      showAlert("❎ Trade cancelled successfully!", "secondary");
+      const { owner, proposer, item } = e.target.dataset;
+      await update(ref(db, `trades/${owner}/${proposer}/${item}`), { status: "Cancelled" });
+      showAlert("❎ Trade cancelled.", "secondary");
       loadTradeProposals(item);
     });
   });
 }
 
-// Bootstrap Alert Helper
+// Helper — Alert
 function showAlert(message, type = "info") {
   const alertDiv = document.createElement("div");
   alertDiv.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3 shadow`;
@@ -417,7 +404,7 @@ function showAlert(message, type = "info") {
   setTimeout(() => alertDiv.remove(), 3000);
 }
 
-// Mark user as interested
+// Interested Users
 async function markInterested(itemId, user) {
   const userRef = ref(db, `users/${user.uid}`);
   const userSnap = await get(userRef);
@@ -434,7 +421,6 @@ async function markInterested(itemId, user) {
   showAlert("✅ Interest recorded! The owner will be notified.", "success");
 }
 
-// Load interested users
 async function loadInterestedUsers(itemId) {
   const listDiv = document.getElementById("interestedList");
   listDiv.innerHTML = "<p class='text-muted'>Loading...</p>";
@@ -460,8 +446,6 @@ async function loadInterestedUsers(itemId) {
     .join("");
   interestedModal.show();
 }
-
-</script>
-     
+</script>     
 </body>
 </html>

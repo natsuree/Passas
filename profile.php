@@ -32,54 +32,124 @@
 </nav>
 
   <!-- Profile Info -->
-  <div class="container mt-5">
-    <div class="card shadow-sm p-4 mx-auto" style="max-width:700px;">
-      <div class="text-center">
-        <img id="userPhoto" src="https://via.placeholder.com/120" class="rounded-circle mb-3" width="120" height="120" alt="User Photo">
-        <h4 id="usernameDisplay">User</h4>
-        <p id="userEmail" class="text-muted">email@example.com</p>
-        <p id="userAbout" class="text-secondary">No description provided.</p>
+<div class="container mt-5">
+  <div class="card shadow-sm mx-auto" style="max-width:950px;">
+    <div class="row g-0 align-items-center">
+      <!-- Left: avatar + quick stats -->
+      <div class="col-12 col-md-4 text-center p-4 bg-dark text-light rounded-start">
+        <div class="d-flex flex-column align-items-center">
+          <div class="rounded-circle overflow-hidden" style="width:140px; height:140px; border:6px solid #2f2f2f;">
+            <img id="userPhoto" src="https://via.placeholder.com/120" alt="User Photo" style="width:100%; height:100%; object-fit:cover;">
+          </div>
+          <h4 id="usernameDisplay" class="mt-3 mb-1">User</h4>
+          <p id="userEmail" class="text-light-50 mb-3 small">email@example.com</p>
+
+          <div class="d-flex gap-2 w-100 justify-content-center">
+            <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+              <i class="bi bi-pencil"></i> Edit
+            </button>
+            <button id="logoutBtnSmall" class="btn btn-danger btn-sm">Logout</button>
+          </div>
+
+          <div class="d-flex justify-content-between gap-3 mt-4 w-100 px-3">
+            <div class="text-center">
+              <h6 class="mb-0" id="itemsCount">0</h6>
+              <small class="text-light-50">Items</small>
+            </div>
+            <div class="text-center">
+              <h6 class="mb-0" id="tradesCount">0</h6>
+              <small class="text-light-50">Trades</small>
+            </div>
+            <div class="text-center">
+              <h6 class="mb-0" id="notifCount">0</h6>
+              <small class="text-light-50">Notifs</small>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <hr>
-
-      <!-- Edit Profile -->
-      <h5 class="mb-3 text-center">Edit Profile</h5>
-      <form id="editForm">
-        <div class="text-center mb-3">
-          <input type="file" id="photoUpload" accept="image/*" class="form-control" style="max-width:300px; margin:auto;">
+      <!-- Right: details -->
+      <div class="col-12 col-md-8 p-4">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 class="mb-1">Profile</h5>
+            <p class="text-muted mb-2" id="userRole">Member</p>
+          </div>
         </div>
 
-        <div class="row g-3">
+        <div class="mb-3">
+          <h6 class="mb-1">About</h6>
+          <p id="userAbout" class="text-secondary">No description provided.</p>
+        </div>
+
+        <div class="row g-2">
           <div class="col-md-6">
-            <label class="form-label">Full Name</label>
-            <input type="text" id="username" class="form-control" required>
+            <h6 class="mb-1">Address</h6>
+            <p id="addressDisplay" class="text-muted small">—</p>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Email</label>
-            <input type="email" id="email" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Address</label>
-            <input type="text" id="address" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Contact</label>
-            <input type="text" id="contact" class="form-control" required>
+            <h6 class="mb-1">Contact</h6>
+            <p id="contactDisplay" class="text-muted small">—</p>
           </div>
         </div>
 
         <div class="mt-3">
-          <label class="form-label">About</label>
-          <textarea id="about" class="form-control" rows="3"></textarea>
+          <a href="add_item.php" class="btn btn-outline-primary me-2"><i class="bi bi-cloud-plus"></i> Add Item</a>
+          <a href="profile.php" class="btn btn-outline-secondary"><i class="bi bi-eye"></i> View Profile</a>
         </div>
-
-        <div class="d-flex justify-content-end mt-4">
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="editForm">
+          <div class="text-center mb-3">
+            <input type="file" id="photoUpload" accept="image/*" class="form-control" style="max-width:300px; margin:auto;">
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="username" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" id="email" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Address</label>
+              <input type="text" id="address" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Contact</label>
+              <input type="text" id="contact" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">About</label>
+            <textarea id="about" class="form-control" rows="3"></textarea>
+          </div>
+
+          <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   <!-- Uploaded Items -->
 <div class="container mt-5 mb-5">
@@ -351,103 +421,173 @@
   });
 
   // --- My Trades Section ---
+// --- My Trades Section ---
 const tradeListContainer = document.getElementById("tradeListContainer");
 
 onAuthStateChanged(auth, async (user) => {
-      if (!user) return (window.location.href = "login.php");
-      const tradesRef = ref(db, "trades");
+  if (!user) return (window.location.href = "login.php");
 
-      onValue(tradesRef, (snapshot) => {
-        tradeListContainer.innerHTML = "";
-        if (!snapshot.exists()) {
-          tradeListContainer.innerHTML = "<p class='text-center text-muted'>No trades yet.</p>";
-          return;
-        }
+  const tradesRef = ref(db, "trades");
 
-        const trades = snapshot.val();
-        let hasTrades = false;
+  onValue(tradesRef, async (snapshot) => {
+    tradeListContainer.innerHTML = "";
 
-        Object.entries(trades).forEach(([itemId, proposals]) => {
-          Object.entries(proposals).forEach(([uid, trade]) => {
-            if (trade.userId === user.uid || trade.ownerId === user.uid) {
-              hasTrades = true;
-              const card = document.createElement("div");
-              card.className = "col-12 col-md-6";
-              card.innerHTML = `
-                <div class="card shadow-sm p-3">
-                  <h5>${trade.status === "Accepted" ? "✅ Trade Accepted" :
-                        trade.status === "Declined" ? "❌ Trade Declined" :
-                        trade.status === "Cancelled" ? "🚫 Trade Cancelled" : "⏳ Pending Trade"}</h5>
-                  <p><strong>Message:</strong> ${trade.message || "No message"}</p>
-                  <small>${new Date(trade.timestamp).toLocaleString()}</small>
-                  <div class="mt-3 text-center">
-                    <button class="btn btn-outline-primary btn-sm view-details" data-item="${itemId}" data-user="${uid}">View Details</button>
+    if (!snapshot.exists()) {
+      tradeListContainer.innerHTML = "<p class='text-center text-muted'>No trades yet.</p>";
+      return;
+    }
+
+    let hasTrades = false;
+
+    // Loop through each receiver
+    const receivers = snapshot.val();
+    for (const [receiverId, proposers] of Object.entries(receivers)) {
+      for (const [proposerId, tradeGroup] of Object.entries(proposers)) {
+        for (const [tradeKey, trade] of Object.entries(tradeGroup)) {
+          if (receiverId === user.uid || proposerId === user.uid) {
+            hasTrades = true;
+
+            const isProposer = proposerId === user.uid;
+            const otherUserId = isProposer ? receiverId : proposerId;
+
+            const userSnap = await get(ref(db, `users/${otherUserId}`));
+            const otherUser = userSnap.exists() ? userSnap.val() : {};
+
+            // Get item info
+            const itemSnap = await get(ref(db, `items/${trade.itemId}`));
+            const item = itemSnap.exists() ? itemSnap.val() : {};
+
+            const card = document.createElement("div");
+            card.className = "col-12 col-md-6";
+            card.innerHTML = `
+              <div class="card shadow-sm p-3">
+                <div class="d-flex align-items-center mb-2">
+                  <img src="${item.photoURL || 'https://via.placeholder.com/80'}" 
+                       alt="Item Image" 
+                       class="rounded me-3" 
+                       width="80" height="80"
+                       style="object-fit: cover;">
+                  <div>
+                    <h5 class="mb-1">${item.name || 'Unnamed Item'}</h5>
+                    <p class="mb-0 text-muted small">${item.description?.substring(0, 50) || ''}</p>
                   </div>
-                </div>`;
-              tradeListContainer.appendChild(card);
-            }
-          });
-        });
-
-        if (!hasTrades) {
-          tradeListContainer.innerHTML = "<p class='text-center text-muted'>No trades yet.</p>";
+                </div>
+                <hr>
+                <p><strong>Status:</strong> ${trade.status}</p>
+                <p><strong>Message:</strong> ${trade.message || 'No message'}</p>
+                <p><strong>With:</strong> ${otherUser.username || 'Unknown User'}</p>
+                <small class="text-muted">${new Date(trade.timestamp).toLocaleString()}</small>
+                <div class="mt-3 text-center">
+                  <button class="btn btn-outline-primary btn-sm view-details" 
+                          data-receiver="${receiverId}" 
+                          data-proposer="${proposerId}" 
+                          data-key="${tradeKey}">
+                    View Details
+                  </button>
+                </div>
+              </div>`;
+            tradeListContainer.appendChild(card);
+          }
         }
+      }
+    }
 
-        // Handle "View Details"
-        document.querySelectorAll(".view-details").forEach(btn => {
-          btn.addEventListener("click", e => {
-            const { item, user: proposerId } = e.target.dataset;
-            loadTradeProposals(item, proposerId);
-          });
-        });
+    if (!hasTrades) {
+      tradeListContainer.innerHTML = "<p class='text-center text-muted'>No trades yet.</p>";
+    }
+
+    // View Details
+    document.querySelectorAll(".view-details").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const receiverId = e.target.dataset.receiver;
+        const proposerId = e.target.dataset.proposer;
+        const tradeKey = e.target.dataset.key;
+        loadTradeDetails(receiverId, proposerId, tradeKey);
       });
     });
+  });
+});
 
-    // ✅ Load Trade Details + Actions
-    async function loadTradeProposals(itemId, proposerId) {
-      tradeDetailsBody.innerHTML = "<p class='text-muted'>Loading trade details...</p>";
-      const tradeSnap = await get(ref(db, `trades/${itemId}/${proposerId}`));
-      if (!tradeSnap.exists()) {
-        tradeDetailsBody.innerHTML = "<p class='text-center text-muted'>Trade not found.</p>";
-        tradeDetailsModal.show();
-        return;
-      }
 
-      const trade = tradeSnap.val();
-      tradeDetailsBody.innerHTML = `
-        <p><strong>Message:</strong> ${trade.message}</p>
-        <p><strong>Status:</strong> ${trade.status}</p>
-        <div class="d-flex justify-content-between">
-          ${trade.status === "Pending" ? `
-            <button class="btn btn-success accept-btn" data-item="${itemId}" data-user="${proposerId}">Accept</button>
-            <button class="btn btn-danger decline-btn" data-item="${itemId}" data-user="${proposerId}">Decline</button>
-            <button class="btn btn-secondary cancel-btn" data-item="${itemId}" data-user="${proposerId}">Cancel</button>` : ""
-          }
-        </div>
-      `;
-      tradeDetailsModal.show();
+// ✅ Load Trade Details + Item Info
+async function loadTradeDetails(receiverId, proposerId, tradeKey) {
+  tradeDetailsBody.innerHTML = "<p class='text-muted'>Loading trade details...</p>";
 
-      document.querySelector(".accept-btn")?.addEventListener("click", async e => {
-        const { item, user } = e.target.dataset;
-        await update(ref(db, `trades/${item}/${user}`), { status: "Accepted" });
-        showBootstrapAlert("✅ Trade accepted successfully!", "success");
-        tradeDetailsModal.hide();
-      });
+  const tradePath = `trades/${receiverId}/${proposerId}/${tradeKey}`;
+  const tradeSnap = await get(ref(db, tradePath));
 
-      document.querySelector(".decline-btn")?.addEventListener("click", async e => {
-        const { item, user } = e.target.dataset;
-        await update(ref(db, `trades/${item}/${user}`), { status: "Declined" });
-        showBootstrapAlert("🚫 Trade declined.", "warning");
-        tradeDetailsModal.hide();
-      });
+  if (!tradeSnap.exists()) {
+    tradeDetailsBody.innerHTML = "<p class='text-center text-muted'>Trade not found.</p>";
+    tradeDetailsModal.show();
+    return;
+  }
 
-      document.querySelector(".cancel-btn")?.addEventListener("click", async e => {
-        const { item, user } = e.target.dataset;
-        await update(ref(db, `trades/${item}/${user}`), { status: "Cancelled" });
-        showBootstrapAlert("❎ Trade cancelled.", "secondary");
-        tradeDetailsModal.hide();
-      });
+  const trade = tradeSnap.val();
+  const currentUid = currentUser.uid;
+  const isProposer = proposerId === currentUid;
+  const otherUserId = isProposer ? receiverId : proposerId;
+
+  // Get user details
+  const userSnap = await get(ref(db, `users/${otherUserId}`));
+  const otherUser = userSnap.exists() ? userSnap.val() : {};
+
+  // Get item details
+  const itemSnap = await get(ref(db, `items/${trade.itemId}`));
+  const item = itemSnap.exists() ? itemSnap.val() : {};
+
+  // Display trade and item info
+  tradeDetailsBody.innerHTML = `
+  <div class="text-center mb-3">
+    <img src="${item.photoURL || 'https://via.placeholder.com/200'}" 
+         alt="Item Image" 
+         class="rounded mb-2" 
+         width="200" height="200" 
+         style="object-fit: cover;">
+    <h5>${item.name || 'Unnamed Item'}</h5>
+    <p class="text-muted">${item.description || 'No description provided.'}</p>
+  </div>
+  <hr>
+  <p><strong>Message:</strong> ${trade.message}</p>
+  <p><strong>Status:</strong> ${trade.status}</p>
+  <hr>
+  <h6>Other User Details</h6>
+  <p><strong>Name:</strong> ${otherUser.fullName || otherUser.username || "N/A"}</p>
+  <p><strong>Email:</strong> ${otherUser.email || "N/A"}</p>
+  <p><strong>Address:</strong> ${otherUser.address || "N/A"}</p>
+  <p><strong>Contact:</strong> ${otherUser.contact || "N/A"}</p>
+  <div class="d-flex justify-content-between mt-3">
+    ${
+      trade.status === "Pending"
+        ? isProposer
+          ? `<button class="btn btn-secondary cancel-btn">Cancel</button>`
+          : `
+              <button class="btn btn-success accept-btn">Accept</button>
+              <button class="btn btn-danger decline-btn">Decline</button>`
+        : ""
     }
+  </div>
+`;
+  tradeDetailsModal.show();
+
+  // Action buttons
+  document.querySelector(".accept-btn")?.addEventListener("click", async () => {
+    await update(ref(db, tradePath), { status: "Accepted" });
+    showAlert("✅ Trade accepted!", "success");
+    tradeDetailsModal.hide();
+  });
+
+  document.querySelector(".decline-btn")?.addEventListener("click", async () => {
+    await update(ref(db, tradePath), { status: "Declined" });
+    showAlert("🚫 Trade declined.", "warning");
+    tradeDetailsModal.hide();
+  });
+
+  document.querySelector(".cancel-btn")?.addEventListener("click", async () => {
+    await update(ref(db, tradePath), { status: "Cancelled" });
+    showAlert("❎ Trade cancelled.", "secondary");
+    tradeDetailsModal.hide();
+  });
+}
 
 // --- Notifications Logic ---
 const notificationsContainer = document.getElementById("notificationsContainer");
