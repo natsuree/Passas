@@ -22,10 +22,10 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="home.php"><span>Home</span></a></li>
           <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
+          <li class="nav-item"><a class="nav-link" href="request.html">Request</a></li>
           <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
-          <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Logout</a></li>
         </ul>
       </div>
     </div>
@@ -160,48 +160,115 @@ let selectedItemId = null;
 onAuthStateChanged(auth, (user) => {
   if (!user) return (window.location.href = "login.php");
 
-  // Load all items
-  const itemsRef = ref(db, "items");
-  onValue(itemsRef, (snapshot) => {
-    itemContainer.innerHTML = "";
-    allItems = snapshot.val() || {};
+  // Apply flexible layout to container
+itemContainer.classList.add(
+  "d-flex",
+  "flex-wrap",
+  "gap-3",
+  "justify-content-start"
+);
 
-    Object.entries(allItems).forEach(([id, item]) => {
-      const tradeBadge = item.openForTrade
-        ? `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Open for Trade</span>`
-        : "";
+// Keep track of original order
+let originalOrder = [];
 
-      const card = document.createElement("div");
-      card.className = "col-12 col-sm-6 col-md-4 position-relative";
-      card.innerHTML = `
-        <div class="card shadow-sm h-100 item-card" data-id="${id}">
-          ${tradeBadge}
-          <img src="${item.photoURL}" class="card-img-top" style="height: 220px; object-fit: cover;">
-          <div class="card-body">
-            <h5 class="card-title">${item.name}</h5>
-            <p class="text-muted">${item.description.substring(0, 80)}...</p>
-            <button class="btn btn-outline-primary btn-sm w-100 view-btn">View Details</button>
-          </div>
-        </div>`;
-      itemContainer.appendChild(card);
-    });
+// Load all items
+const itemsRef = ref(db, "items");
+onValue(itemsRef, (snapshot) => {
+  itemContainer.innerHTML = "";
+  allItems = snapshot.val() || {};
+  originalOrder = [];
 
-    document.querySelectorAll(".view-btn").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        const id = e.target.closest(".item-card").dataset.id;
-        showItemModal(id, user);
-      });
+  Object.entries(allItems).forEach(([id, item]) => {
+    const tradeBadge = item.openForTrade
+      ? `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Open for Trade</span>`
+      : "";
+
+    const card = document.createElement("div");
+    card.className = "item-card position-relative";
+    card.style.flex = "1 1 calc(30% - 1rem)"; // wider cards (3 per row)
+    card.style.minWidth = "360px"; // matches your layout
+    card.style.maxWidth = "400px";
+
+    card.innerHTML = `
+      <div class="card shadow-sm h-100" data-id="${id}">
+        ${tradeBadge}
+        <img src="${item.photoURL || 'https://via.placeholder.com/350'}"
+             class="card-img-top"
+             style="height: 220px; object-fit: cover;">
+        <div class="card-body">
+          <h5 class="card-title">${item.name}</h5>
+          <p class="text-muted">${item.description?.substring(0, 80) || ''}...</p>
+          <button class="btn btn-outline-primary btn-sm w-100 view-btn">View Details</button>
+        </div>
+      </div>
+    `;
+
+    itemContainer.appendChild(card);
+    originalOrder.push(card);
+  });
+
+  // View Details button
+  document.querySelectorAll(".view-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.closest(".card").dataset.id;
+      showItemModal(id, user);
     });
   });
+});
+
+//  Search with smooth reordering + restore
+searchInput.addEventListener("input", (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  const cards = Array.from(document.querySelectorAll(".item-card"));
+
+  if (q === "") {
+    // Restore original order
+    itemContainer.innerHTML = "";
+    originalOrder.forEach((card) => {
+      card.style.display = "";
+      itemContainer.appendChild(card);
+    });
+    return;
+  }
+
+  // Filter and reorder
+  const matches = [];
+  const nonMatches = [];
+
+  cards.forEach((card) => {
+    const title = card.querySelector(".card-title").textContent.toLowerCase();
+    if (title.includes(q)) {
+      matches.push(card);
+    } else {
+      nonMatches.push(card);
+    }
+  });
+
+  // Show matches on top-left, hide the rest
+  itemContainer.innerHTML = "";
+  matches.forEach((card) => {
+    card.style.display = "";
+    itemContainer.appendChild(card);
+  });
+  nonMatches.forEach((card) => {
+    card.style.display = "none";
+    itemContainer.appendChild(card);
+  });
+});
 
   // Search
   searchInput.addEventListener("input", (e) => {
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll(".item-card").forEach(card => {
-      const title = card.querySelector(".card-title").textContent.toLowerCase();
-      card.style.display = title.includes(q) ? "" : "none";
-    });
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll(".item-card").forEach(card => {
+    const title = card.querySelector(".card-title").textContent.toLowerCase();
+    if (title.includes(q)) {
+      card.classList.remove("d-none");
+    } else {
+      card.classList.add("d-none");
+    }
   });
+});
+
 
   // Logout
   document.getElementById("logoutBtn").addEventListener("click", async () => {

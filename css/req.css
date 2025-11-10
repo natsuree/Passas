@@ -1,0 +1,163 @@
+/* Request Page Styles (trimmed) */
+
+body {
+  background-color: #f7f7f7;
+}
+
+/* Request list items */
+#requestList .list-group-item {
+  border-radius: 6px;
+  margin-bottom: 8px;
+  padding: 14px 18px;
+  transition: 0.25s ease;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  border-left: 5px solid transparent;
+}
+#requestList .list-group-item:hover {
+  background-color: #f9f9f9;
+  border-left-color: #007bff;
+}
+
+/* Buttons in list */
+.view-btn {
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+.view-btn:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Modal header/footer */
+#addRequestModal .modal-header,
+#requestModal .modal-header {
+  border-bottom: none;
+  color: white;
+}
+#addRequestModal .modal-header { background-color: #007bff; }
+#requestModal .modal-header { background-color: #2f2f2f; }
+
+.modal-footer { border-top: none; }
+
+/* Interested Donors */
+#interestedSection { margin-top: 15px; }
+#interestedList .list-group-item {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Interested button */
+#interestedBtn {
+  width: 100%;
+  font-weight: 500;
+  margin-top: 12px;
+  border-radius: 6px;
+}
+
+/* Page layout helpers */
+.requests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* Filter / Add Request buttons */
+#filterMyRequests,
+#showAllRequests,
+#addRequestBtn {
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Active filter style (used by JS) */
+.filter-active {
+  background-color: #2f2f2f !important;
+  color: white !important;
+  border-color: #2f2f2f !important;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+  .requests-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  #filterMyRequests,
+  #showAllRequests,
+  #addRequestBtn {
+    width: 100%;
+  }
+}
+/* navbar section */
+.navbar {
+    padding: 20px;
+    background-color: #2f2f2f !important; /* force dark gray */
+}
+
+/* ensure collapsed area and links inherit same background */
+.navbar .navbar-collapse,
+.navbar .navbar-nav,
+.navbar .nav-item,
+.navbar .nav-link,
+.navbar .dropdown-menu {
+    background-color: #2f2f2f !important;
+}
+
+.navbar .navbar-brand {
+    color: #cac8c8 !important;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.navbar .navbar-brand i {
+    font-size: 25px;
+    background: #2f2f2f;
+    border-radius: 50%;
+    padding: 10px 15px;
+    color: #fff;
+}
+
+.navbar .navbar-toggler {
+    color: #fff !important;
+    background-color: #444;
+    border-radius: 50%;
+    padding: 10px;
+    outline: none;
+    border: none;
+}
+
+.navbar .nav-link {
+    color: #f1f1f1 !important;
+    font-size: 18px;
+    margin-right: 40px;
+    text-decoration: none;
+}
+
+.navbar .nav-link:hover {
+    color: #ffc107 !important;
+}
+
+.navbar .dropdown-menu {
+    background-color: #2f2f2f !important;
+    border: none;
+}
+
+.navbar .dropdown-item {
+    color: #f1f1f1 !important;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: #3a3a3a !important;
+    color: #4da3ff !important;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}

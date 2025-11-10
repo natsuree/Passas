@@ -23,8 +23,8 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
+        <li class="nav-item"><a class="nav-link" href="request.html">Request</a></li>
         <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
-        <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Logout</a></li>
       </ul>
     </div>
   </div>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Requests | PASSA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/req.css">
+
+</head>
+<body class="bg-light">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #2f2f2f;">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center fw-semibold" href="home.php">
+        <img src="image/logo.png" alt="PASSA Logo" width="175" height="55" class="me-2">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container mt-4">
+    <div class="requests-header">
+      <h3>Requests</h3>
+      <div>
+        <button id="filterMyRequests" class="btn btn-outline-secondary">My Requests</button>
+        <button id="showAllRequests" class="btn btn-outline-secondary">All Requests</button>
+        <hr>
+        <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addRequestModal">+ Add Request</button>
+      </div>
+    </div>
+
+    <div id="requestList" class="list-group shadow-sm"></div>
+  </div>
+
+  <!-- Add Request Modal -->
+  <div class="modal fade" id="addRequestModal" tabindex="-1" aria-labelledby="addRequestLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="addRequestLabel">Add New Request</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="requestForm">
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input type="text" id="reqTitleInput" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea id="reqDescInput" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Submit Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request Details Modal -->
+  <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title" id="requestModalLabel">Request Details</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Title:</strong> <span id="reqTitle"></span></p>
+          <p><strong>Description:</strong> <span id="reqDescription"></span></p>
+          <hr>
+          <p><strong>Requested By:</strong> <span id="reqName"></span></p>
+          <p><strong>Email:</strong> <span id="reqEmail"></span></p>
+          <p><strong>Time:</strong> <span id="reqTime"></span></p>
+
+          <!-- Interested Donors (Visible Only to Request Owner) -->
+          <div id="interestedSection" class="mt-3 d-none">
+            <hr>
+            <h6>Interested Donors</h6>
+            <ul id="interestedList" class="list-group small"></ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="interestedBtn" class="btn btn-success">I’m Interested</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAq6TIgqizXPlSs8fw5EUy7DVexM6MlyxQ",
+      authDomain: "soft-engr.firebaseapp.com",
+      databaseURL: "https://soft-engr-default-rtdb.firebaseio.com",
+      projectId: "soft-engr",
+      storageBucket: "soft-engr.firebasestorage.app",
+      messagingSenderId: "623763613209",
+      appId: "1:623763613209:web:33152fe31ad0b256db6c88"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const requestList = document.getElementById("requestList");
+    const form = document.getElementById("requestForm");
+    const interestedSection = document.getElementById("interestedSection");
+    const interestedList = document.getElementById("interestedList");
+    const interestedBtn = document.getElementById("interestedBtn");
+
+    let currentUser = null;
+    let allRequests = {};
+    let selectedRequestId = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) currentUser = user;
+      else window.location.href = "login.php";
+    });
+
+    const requestsRef = ref(db, "requests");
+    onValue(requestsRef, (snapshot) => {
+      allRequests = snapshot.val() || {};
+      displayRequests(allRequests);
+    });
+
+    // ✅ Display Requests (filter support)
+    function displayRequests(data, onlyMine = false) {
+      requestList.innerHTML = "";
+      const entries = Object.entries(data).reverse();
+      let hasData = false;
+
+      entries.forEach(([id, req]) => {
+        if (onlyMine && req.uid !== currentUser?.uid) return;
+        hasData = true;
+
+        const item = document.createElement("div");
+        item.className = "list-group-item d-flex justify-content-between align-items-center";
+        item.innerHTML = `
+          <div>
+            <h5 class="mb-1">${req.title}</h5>
+            <small class="text-muted">${req.description.substring(0, 80)}...</small>
+          </div>
+          <button class="btn btn-outline-primary btn-sm view-btn" data-id="${id}">View Details</button>
+        `;
+        requestList.appendChild(item);
+      });
+
+      if (!hasData) {
+        requestList.innerHTML = `<p class="text-muted text-center">No requests found.</p>`;
+      }
+
+      document.querySelectorAll(".view-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          selectedRequestId = e.target.dataset.id;
+          openRequestModal(allRequests[selectedRequestId]);
+        });
+      });
+    }
+
+    // ✅ Open Request Modal
+    async function openRequestModal(req) {
+      document.getElementById("reqTitle").textContent = req.title;
+      document.getElementById("reqDescription").textContent = req.description;
+      document.getElementById("reqName").textContent = req.name;
+      document.getElementById("reqEmail").textContent = req.email;
+      document.getElementById("reqTime").textContent = new Date(req.timestamp).toLocaleString();
+
+      interestedSection.classList.add("d-none");
+      interestedBtn.classList.remove("d-none");
+
+      // Show interested donors only to the owner
+      if (currentUser && currentUser.uid === req.uid) {
+        interestedSection.classList.remove("d-none");
+        interestedBtn.classList.add("d-none");
+        loadInterestedUsers(selectedRequestId);
+      }
+
+      new bootstrap.Modal(document.getElementById("requestModal")).show();
+    }
+
+    // ✅ Submit Request
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("reqTitleInput").value.trim();
+      const description = document.getElementById("reqDescInput").value.trim();
+
+      const userRef = ref(db, "users/" + currentUser.uid);
+      const snap = await get(userRef);
+      const userInfo = snap.exists() ? snap.val() : {};
+
+      const reqRef = push(ref(db, "requests"));
+      await set(reqRef, {
+        uid: currentUser.uid,
+        title,
+        description,
+        name: userInfo.name || currentUser.displayName || "Anonymous",
+        email: userInfo.email || currentUser.email,
+        contact: userInfo.contact || "No contact",
+        timestamp: Date.now(),
+      });
+
+      alert("✅ Request added successfully!");
+      form.reset();
+    });
+
+    // ✅ Load Interested Users (only for request owner)
+    async function loadInterestedUsers(reqId) {
+      const interestRef = ref(db, `interests/${reqId}`);
+      onValue(interestRef, (snapshot) => {
+        interestedList.innerHTML = "";
+        const data = snapshot.val();
+        if (!data) {
+          interestedList.innerHTML = `<li class="list-group-item text-muted">No interested users yet.</li>`;
+          return;
+        }
+        Object.values(data).forEach((u) => {
+          const li = document.createElement("li");
+          li.className = "list-group-item";
+          li.innerHTML = `<strong>${u.name}</strong> — ${u.email}<br><small>Contact: ${u.contact}</small>`;
+          interestedList.appendChild(li);
+        });
+      });
+    }
+
+    // ✅ “I’m Interested”
+    interestedBtn.addEventListener("click", async () => {
+      if (!selectedRequestId || !currentUser) return alert("You must be logged in.");
+      const userRef = ref(db, "users/" + currentUser.uid);
+      const snap = await get(userRef);
+      const userInfo = snap.exists() ? snap.val() : {};
+
+      const interestRef = push(ref(db, `interests/${selectedRequestId}`));
+      await set(interestRef, {
+        uid: currentUser.uid,
+        name: userInfo.name || currentUser.displayName || "Anonymous",
+        email: userInfo.email || currentUser.email,
+        contact: userInfo.contact || "No contact",
+        timestamp: Date.now(),
+      });
+
+      alert("✅ You’re now marked as interested. The requester can see your info.");
+    });
+
+    // ✅ Filters
+    document.getElementById("filterMyRequests").addEventListener("click", () => displayRequests(allRequests, true));
+    document.getElementById("showAllRequests").addEventListener("click", () => displayRequests(allRequests, false));
+
+    // ✅ Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.php";
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
