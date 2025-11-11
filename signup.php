@@ -17,31 +17,23 @@
     <h3 class="text-center mb-4">Create an Account</h3>
 
     <form id="signupForm">
-      <!-- Full Name -->
       <div class="mb-3">
-        <i class="fa fa-user icon"></i>
-        <label class="form-label">Full Name</label>
+        <label class="form-label"><i class="fa fa-user icon"></i>Full Name</label>
         <input type="text" id="fullName" class="form-control" required>
       </div>
 
-      <!-- Email -->
       <div class="mb-3">
-        <i class="fa fa-envelope icon"></i>
-        <label class="form-label">Email</label>
+        <label class="form-label"><i class="fa fa-envelope icon"></i>Email</label>
         <input type="email" id="email" class="form-control" required>
       </div>
 
-      <!-- Password -->
       <div class="mb-3">
-        <i class="fa fa-lock icon"></i>
-        <label class="form-label">Password</label>
+        <label class="form-label"><i class="fa fa-lock icon"></i>Password</label>
         <input type="password" id="password" class="form-control" required>
       </div>
 
-      <!-- Gender -->
       <div class="mb-3">
-        <i class="fa fa-venus-mars icon"></i>
-        <label class="form-label">Gender</label>
+        <label class="form-label"><i class="fa fa-venus-mars icon"></i>Gender</label>
         <select id="gender" class="form-select" required>
           <option value="" disabled selected>Select gender</option>
           <option value="Male">Male</option>
@@ -50,31 +42,23 @@
         </select>
       </div>
 
-      <!-- Age -->
       <div class="mb-3">
-        <i class="fa fa-hourglass icon"></i>
-        <label class="form-label">Age</label>
+        <label class="form-label"><i class="fa fa-hourglass icon"></i>Age</label>
         <input type="number" id="age" class="form-control" required min="1">
       </div>
 
-      <!-- Birth Date -->
       <div class="mb-3">
-        <i class="fa fa-calendar icon"></i>
-        <label class="form-label">Birth Date</label>
+        <label class="form-label"><i class="fa fa-calendar icon"></i>Birth Date</label>
         <input type="date" id="birthDate" class="form-control" required>
       </div>
 
-      <!-- Address -->
       <div class="mb-3">
-        <i class="fa fa-map-marker-alt icon"></i>
-        <label class="form-label">Address</label>
+        <label class="form-label"><i class="fa fa-map-marker-alt icon"></i>Address</label>
         <input type="text" id="address" class="form-control" required>
       </div>
 
-      <!-- Contact -->
       <div class="mb-3">
-        <i class="fa fa-phone icon"></i>
-        <label class="form-label">Contact Number</label>
+        <label class="form-label"><i class="fa fa-phone icon"></i>Contact Number</label>
         <input type="text" id="contact" class="form-control" required>
       </div>
 
@@ -128,7 +112,6 @@
 
         await updateProfile(user, { displayName: fullName });
 
-        // Save to Realtime Database
         await set(ref(db, "users/" + user.uid), {
           fullName,
           email,
@@ -142,7 +125,7 @@
 
         message.classList.remove("text-danger");
         message.classList.add("text-success");
-        message.textContent = "Signup successful!";
+        message.textContent = "Signup successful! Redirecting...";
 
         setTimeout(() => {
           window.location.href = "login.php";
@@ -150,7 +133,7 @@
 
       } catch (error) {
         console.error(error);
-        message.textContent = "" + error.message;
+        message.textContent = error.message;
       }
     });
   </script>

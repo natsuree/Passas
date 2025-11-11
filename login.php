@@ -26,21 +26,6 @@
           <i class="fa fa-lock icon"></i>
           <label class="form-label">Password</label>
           <input type="password" id="password" class="form-control" placeholder="Enter password" required>
-
-          <script>
-          const toggle = document.querySelector(".toggle");
-          const input = document.querySelector(".password");
-
-          toggle.addEventListener("click", () => {
-            if (input.type === "password") {
-              input.type = "text";
-              toggle.classList.replace("fa-eye", "fa-eye-slash");
-            } else {
-              input.type = "password";
-              toggle.classList.replace("fa-eye-slash", "fa-eye");
-            }
-          });
-        </script>
         </div>
 
         <button type="submit" class="btn btn-primary w-100 mt-2">Login</button>
@@ -61,89 +46,114 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      GoogleAuthProvider, 
-      signInWithPopup 
-    } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-    import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup
+  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAq6TIgqizXPlSs8fw5EUy7DVexM6MlyxQ",
-      authDomain: "soft-engr.firebaseapp.com",
-      projectId: "soft-engr",
-      storageBucket: "soft-engr.firebasestorage.app",
-      messagingSenderId: "623763613209",
-      appId: "1:623763613209:web:33152fe31ad0b256db6c88",
-      databaseURL: "https://soft-engr-default-rtdb.firebaseio.com"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyAq6TIgqizXPlSs8fw5EUy7DVexM6MlyxQ",
+    authDomain: "soft-engr.firebaseapp.com",
+    projectId: "soft-engr",
+    storageBucket: "soft-engr.firebasestorage.app",
+    messagingSenderId: "623763613209",
+    appId: "1:623763613209:web:33152fe31ad0b256db6c88",
+    databaseURL: "https://soft-engr-default-rtdb.firebaseio.com"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const statusDiv = document.getElementById("status");
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
 
-    // Email + Password login
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+  const statusDiv = document.getElementById("status");
+  const loginForm = document.getElementById("loginForm");
+  const googleBtn = document.getElementById("googleLoginBtn");
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  // Helper to show status
+  function showStatus(msg, isError = false) {
+    statusDiv.textContent = msg;
+    statusDiv.classList.toggle("text-danger", !!isError);
+    statusDiv.classList.toggle("text-success", !isError);
+  }
 
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+  // Email / Password login
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-        statusDiv.textContent = " Login successful!";
-        setTimeout(() => (window.location.href = "home.php"), 1000);
-      } catch (error) {
-        console.error(error);
-        statusDiv.textContent = " " + error.message;
-      }
-    });
-
-    // Google login
-const googleProvider = new GoogleAuthProvider();
-document.getElementById("googleLoginBtn").addEventListener("click", async () => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-
-    const userRef = ref(db, "users/" + user.uid);
-    const snapshot = await get(userRef);
-
-    // ✅ Only create if user record doesn't exist
-    if (!snapshot.exists()) {
-      await set(userRef, {
-        username: user.displayName || "User",
-        email: user.email || "",
-        photoURL: user.photoURL || "https://via.placeholder.com/120",
-        address: "",
-        contact: "",
-        about: "No description provided.",
-        uid: user.uid,
-        createdAt: new Date().toISOString(),
-      });
-      console.log("✅ Created new user record in database.");
-    } else {
-      // ✅ If user exists, just refresh their Google info (don’t delete anything)
-      await update(userRef, {
-        email: user.email,
-        photoURL: user.photoURL || snapshot.val().photoURL,
-        username: user.displayName || snapshot.val().username,
-      });
-      console.log("✅ Existing user logged in via Google; data preserved.");
+    if (!email || !password) {
+      showStatus("Please enter email and password.", true);
+      return;
     }
 
-    statusDiv.textContent = "Google login successful!";
-    setTimeout(() => (window.location.href = "home.php"), 1000);
-  } catch (error) {
-    console.error(error);
-    statusDiv.textContent = " " + error.message;
-  }
-});
+    try {
+      showStatus("Signing in...");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      const userRef = ref(db, "users/" + user.uid);
+      let snapshot = await get(userRef);
+
+      // create DB record for new users
+      if (!snapshot.exists()) {
+        await set(userRef, {
+          username: user.displayName || "User",
+          email: user.email || email,
+          photoURL: user.photoURL || "https://via.placeholder.com/120",
+          isAdmin: false,
+          uid: user.uid
+        });
+        snapshot = await get(userRef);
+      }
+
+      const isAdmin = snapshot.val()?.isAdmin === true;
+      showStatus(isAdmin ? "Admin login successful." : "Login successful.");
+      setTimeout(() => {
+        window.location.href = isAdmin ? "admin/admin_dashboard.php" : "home.php";
+      }, 800);
+    } catch (err) {
+      console.error(err);
+      showStatus(err?.message || "Login failed.", true);
+    }
+  });
+
+  // Google sign-in
+  googleBtn.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      showStatus("Signing in with Google...");
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userRef = ref(db, "users/" + user.uid);
+      let snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        await set(userRef, {
+          username: user.displayName || "User",
+          email: user.email,
+          photoURL: user.photoURL || "https://via.placeholder.com/120",
+          isAdmin: false,
+          uid: user.uid
+        });
+        snapshot = await get(userRef);
+      }
+
+      const isAdmin = snapshot.val()?.isAdmin === true;
+      showStatus(isAdmin ? "Admin login successful." : "Login successful.");
+      setTimeout(() => {
+        window.location.href = isAdmin ? "admin/admin_dashboard.php" : "home.php";
+      }, 800);
+    } catch (err) {
+      console.error(err);
+      showStatus(err?.message || "Google sign-in failed.", true);
+    }
+  });
   </script>
 </body>
 </html>

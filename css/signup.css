@@ -1,45 +1,55 @@
-body {
-  position: relative;
-  height: 100vh;
-  background: url('../image/1.jpg') center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    body {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      font-family: 'Poppins', sans-serif;
+    }
 
-/* 🔹 Dark overlay for background */
-body::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55); /* adjust 0.55–0.7 for darkness level */
-  z-index: 0;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #007bff, #0056d6);
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-}
+    .signup-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 420px;
+    }
 
-/* Ensure the card appears above the overlay */
-.signup-card {
-  position: relative;
-  z-index: 1;
-  max-width: 500px;
-  width: 90%;
-  margin: 60px auto;
-  padding: 30px;
-  background: rgb(255, 253, 253); /* semi-transparent white for glass look */
-  backdrop-filter: blur(10px); /* adds subtle blur */
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  color: #000000;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+    .signup-card h3 {
+      font-weight: 600;
+    }
 
-/* Optional: hover effect for a modern feel */
-.signup-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-}
+    .form-label {
+      font-weight: 500;
+      margin-top: 5px;
+    }
+
+    .icon {
+      color: #007bff;
+      margin-right: 8px;
+    }
+
+    input, select {
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 576px) {
+      .signup-card {
+        padding: 25px 20px;
+      }
+      h3 {
+        font-size: 1.5rem;
+      }
+      input, select {
+        font-size: 0.95rem;
+      }
+    }
+
+    .btn-primary {
+      border-radius: 8px;
+      font-weight: 500;
+      padding: 10px;
+    }

@@ -24,8 +24,8 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
-        <li class="nav-item"><a class="nav-link" href="request.html">Request</a></li>
         <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+        <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Logout</a></li>
       </ul>
     </div>
   </div>
@@ -48,7 +48,7 @@
             <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
               <i class="bi bi-pencil"></i> Edit
             </button>
-            <button id="logoutBtnSmall" class="btn btn-danger btn-sm">Logout</button>
+            <a id="logoutBtnSmall" href="logout.php" class="btn btn-danger btn-sm">Logout</a>
           </div>
 
           <div class="d-flex justify-content-between gap-3 mt-4 w-100 px-3">
@@ -421,7 +421,6 @@
   });
 
   // --- My Trades Section ---
-// --- My Trades Section ---
 const tradeListContainer = document.getElementById("tradeListContainer");
 
 onAuthStateChanged(auth, async (user) => {
