@@ -15,7 +15,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #2f2f2f;">
     <div class="container-fluid">
       <!-- Logo -->
-      <a class="navbar-brand d-flex align-items-center fw-semibold" href="home.php">
+      <a class="navbar-brand d-flex align-items-center fw-semibold" href="index.php">
         <img src="image/logo.png" alt="PASSA Logo" width="175" height="55" class="me-2">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -23,9 +23,7 @@
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav align-items-center gap-3">
-          <li class="nav-item"><a href="index.php" class="nav-link">About</a></li>
           <li class="nav-item"><a href="team.php" class="nav-link">Our Team</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Contact</a></li>
           <li class="nav-item">
             <a href="login.php" class="btn btn-outline-light rounded-pill px-4">Log In</a>
           </li>
@@ -38,7 +36,7 @@
   <section class="team-section py-5">
     <div class="container text-center">
       <h2 class="fw-bold mb-4">Meet Our <span>Team</span></h2>
-      <p class="text-muted mb-5">The passionate individuals behind PASSA — working together to connect communities and empower students.</p>
+      <p class="text-muted mb-5">The passionate individuals behind PASSA</p>
 
       <div class="row justify-content-center g-4">
         

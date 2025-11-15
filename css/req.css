@@ -98,7 +98,6 @@ body {
 /* navbar section */
 .navbar {
     padding: 20px;
-    background-color: #2f2f2f !important; /* force dark gray */
 }
 
 /* ensure collapsed area and links inherit same background */
@@ -160,4 +159,32 @@ body {
 
 .btn:hover {
   opacity: 0.9;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056d6);
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  transition: 0.2s ease;
+}
+
+.btn-outline-danger {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* 🔹 Links */
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }

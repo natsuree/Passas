@@ -21,7 +21,7 @@
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link active" href="admin_dashboard.php">Dashboard</a></li>
           <li class="nav-item"><a class="nav-link" href="manage_users.php">Manage Users</a></li>
-          <li class="nav-item"><button id="logoutBtnSmall" class="btn btn-danger btn-sm ms-3">Logout</button></li>
+          <li class="nav-item"><button id="logoutBtnSmall" href="logout.php" class="btn btn-danger btn-sm ms-3">Logout</button></li>
         </ul>
       </div>
     </div>
@@ -128,7 +128,25 @@
     </div>
   </div>
 
-  <!-- Firebase -->
+  <!-- Details Modal -->
+  <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detailsModalLabel">Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalContent" class="row g-3"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase & JS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
     import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
@@ -183,42 +201,99 @@
       document.getElementById("totalRequests").textContent = requestsSnap.exists() ? Object.keys(requestsSnap.val()).length : 0;
       document.getElementById("totalTrades").textContent = tradesSnap.exists() ? Object.keys(tradesSnap.val()).length : 0;
 
-      renderList(usersSnap, "usersList", "fullName", "email", "gender","users");
-      renderList(postsSnap, "postsList", "name", "description", "posts");
+      renderList(usersSnap, "usersList", "fullName", "email", "users");
+      renderList(postsSnap, "postsList", "name", "description", "items");
       renderList(requestsSnap, "requestsList", "title", "description", "requests");
-      renderList(tradesSnap, "tradesList", "tradeItem", "details", "trades");
+      renderList(tradesSnap, "tradesList", "itemID", "details", "trades");
     }
 
     function renderList(snapshot, listId, keyField, subField, dbPath) {
       const list = document.getElementById(listId);
       list.innerHTML = "";
 
-      if (snapshot.exists()) {
+      if (snapshot && snapshot.exists()) {
         Object.entries(snapshot.val()).forEach(([key, data]) => {
+          const imageUrl =
+            data.photoURL || data.imageURL || data.image || "https://via.placeholder.com/100";
+
           const item = document.createElement("div");
-          item.className = "list-group-item d-flex justify-content-between align-items-start";
+          item.className = "list-group-item d-flex justify-content-between align-items-center flex-wrap";
+          item.style.cursor = "pointer";
           item.innerHTML = `
-            <div>
-              <strong>${data[keyField] || "Unnamed"}</strong><br>
-              <small>${data[subField] || "No details"}</small>
+            <div class="d-flex align-items-center gap-3">
+              <img src="${imageUrl}" alt="Not provided" class="rounded" style="width:60px;height:60px;object-fit:cover;">
+              <div>
+                <strong>${data[keyField] || "Unnamed"}</strong><br>
+                <small>${data[subField] || "No details"}</small>
+              </div>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="deleteItem('${dbPath}', '${key}')">
+            <button class="btn btn-sm btn-danger btn-delete" data-path="${dbPath}/${key}">
               <i class="fa-solid fa-trash"></i>
             </button>
           `;
+
+          item.querySelector("div.d-flex").addEventListener("click", () => showDetailsModal(data, dbPath));
           list.appendChild(item);
+        });
+
+        list.querySelectorAll(".btn-delete").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const path = btn.dataset.path;
+            if (!confirm("Are you sure you want to delete this?")) return;
+            try {
+              await remove(ref(db, path));
+              alert("Deleted successfully.");
+              await loadData();
+            } catch (err) {
+              console.error("Delete error:", err);
+              alert("Delete failed: " + (err?.message || err));
+            }
+          });
         });
       } else {
         list.innerHTML = `<p class="text-muted">No data found.</p>`;
       }
     }
 
-    window.deleteItem = async (path, id) => {
-      if (confirm("Are you sure you want to delete this?")) {
-        await remove(ref(db, `${path}/${id}`));
-        loadData();
+    function showDetailsModal(data, type) {
+      const modalTitle = document.getElementById("detailsModalLabel");
+      const modalBody = document.getElementById("modalContent");
+
+      modalTitle.textContent =
+        type === "users"
+          ? "User Details"
+          : type === "items"
+          ? "Posted Item Details"
+          : type === "requests"
+          ? "Request Details"
+          : type === "trades"
+          ? "Trade Details"
+          : "Details";
+
+      let content = "";
+
+      for (const [key, value] of Object.entries(data)) {
+        if (typeof value === "string" && value.startsWith("http") && value.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          content += `
+            <div class="col-6 col-md-4 text-center">
+              <img src="${value}" alt="${key}" class="img-fluid rounded shadow-sm mb-2" style="max-height:120px;object-fit:cover;">
+              <small class="text-muted">${key}</small>
+            </div>
+          `;
+        } else {
+          content += `
+            <div class="col-12 col-md-6">
+              <strong>${key}:</strong> <span>${value || "N/A"}</span>
+            </div>
+          `;
+        }
       }
-    };
+
+      modalBody.innerHTML = content;
+      const modal = new bootstrap.Modal(document.getElementById("detailsModal"));
+      modal.show();
+    }
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>

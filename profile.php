@@ -11,25 +11,25 @@
 </head>
 <body class="bg-light">
 
-  <!-- Navbar -->
+ <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #2f2f2f;">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center fw-semibold" href="home.php">
-      <img src="image/logo.png" alt="PASSA Logo" width="175" height="55" class="me-2">
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
-        <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
-        <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Logout</a></li>
-      </ul>
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center fw-semibold" href="home.php">
+        <img src="image/logo.png" alt="PASSA Logo" width="175" height="55" class="me-2">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
+          <li class="nav-item"><a class="nav-link" href="request.html">Request</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+        </ul>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
   <!-- Profile Info -->
 <div class="container mt-5">
@@ -51,7 +51,7 @@
             <a id="logoutBtnSmall" href="logout.php" class="btn btn-danger btn-sm">Logout</a>
           </div>
 
-          <div class="d-flex justify-content-between gap-3 mt-4 w-100 px-3">
+          <div class="d-flex justify-content-between gap-3 mt-4 w-70 px-3">
             <div class="text-center">
               <h6 class="mb-0" id="itemsCount">0</h6>
               <small class="text-light-50">Items</small>
@@ -59,10 +59,6 @@
             <div class="text-center">
               <h6 class="mb-0" id="tradesCount">0</h6>
               <small class="text-light-50">Trades</small>
-            </div>
-            <div class="text-center">
-              <h6 class="mb-0" id="notifCount">0</h6>
-              <small class="text-light-50">Notifs</small>
             </div>
           </div>
         </div>
@@ -73,7 +69,7 @@
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <h5 class="mb-1">Profile</h5>
-            <p class="text-muted mb-2" id="userRole">Member</p>
+            <p class="text-muted mb-2" id="fullName">Member</p>
           </div>
         </div>
 
@@ -161,13 +157,13 @@
   <h4 class="text-center mb-4">My Trades</h4>
   <div class="row g-4" id="tradeListContainer"></div>
 </div>
-<!-- Notifications Section -->
+<!-- Notifications Section 
 <div class="container mt-5 mb-5">
   <h4 class="text-center mb-4">Notifications</h4>
   <div class="list-group" id="notificationsContainer">
     <p class="text-center text-muted">No notifications yet.</p>
   </div>
-</div>
+</div> -->
 
 
 <!-- Edit Item Modal -->
@@ -307,6 +303,57 @@
     userEmail.textContent = data.email || user.email;
     userAbout.textContent = data.about || "No description provided.";
 
+    // show full name (prefer fullName field, then username, then Firebase displayName)
+    const fullNameEl = document.getElementById('fullName');
+    if (fullNameEl) fullNameEl.textContent = data.fullName || data.username || user.displayName || 'Member';
+    
+    // Populate visible profile details and counts from DB
+    const addressDisplay = document.getElementById('addressDisplay');
+    const contactDisplay = document.getElementById('contactDisplay');
+    const itemsCountEl = document.getElementById('itemsCount');
+    const tradesCountEl = document.getElementById('tradesCount');
+    const notifCountEl = document.getElementById('notifCount');
+
+    if (addressDisplay) addressDisplay.textContent = data.address || '—';
+    if (contactDisplay) contactDisplay.textContent = data.contact || '—';
+
+    // items count (uploads by this user)
+    try {
+      const itemsSnap = await get(ref(db, 'items'));
+      let itemsCount = 0;
+      if (itemsSnap.exists()) {
+        Object.values(itemsSnap.val()).forEach(i => { if (i.userId === currentUser.uid) itemsCount++; });
+      }
+      if (itemsCountEl) itemsCountEl.textContent = itemsCount;
+    } catch (err) { console.error('items count error', err); }
+
+    // trades count (trades where user is proposer or receiver)
+    try {
+      const tradesSnap = await get(ref(db, 'trades'));
+      let tradesCount = 0;
+      if (tradesSnap.exists()) {
+        const receivers = tradesSnap.val();
+        Object.entries(receivers).forEach(([receiverId, proposers]) => {
+          Object.entries(proposers || {}).forEach(([proposerId, groups]) => {
+            Object.entries(groups || {}).forEach(() => {
+              if (receiverId === currentUser.uid || proposerId === currentUser.uid) tradesCount++;
+            });
+          });
+        });
+      }
+      if (tradesCountEl) tradesCountEl.textContent = tradesCount;
+    } catch (err) { console.error('trades count error', err); }
+
+    // unread notifications count
+    try {
+      const notifsSnap = await get(ref(db, `notifications/${currentUser.uid}`));
+      let unread = 0;
+      if (notifsSnap.exists()) {
+        Object.values(notifsSnap.val()).forEach(n => { if (!n.read) unread++; });
+      }
+      if (notifCountEl) notifCountEl.textContent = unread;
+    } catch (err) { console.error('notifications count error', err); }
+  
     // Keep your "uploaded items" section fully functional
     const itemsRef = ref(db, "items");
     onValue(itemsRef, (snapshot) => {
