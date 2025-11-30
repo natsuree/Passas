@@ -268,13 +268,7 @@ searchInput.addEventListener("input", (e) => {
     }
   });
 });
-
-
-  // Logout
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "index.php";
-  });
+  
 });
 
 // Show item modal

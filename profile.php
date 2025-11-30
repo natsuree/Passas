@@ -11,25 +11,25 @@
 </head>
 <body class="bg-light">
 
- <!-- Navbar -->
+  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: #2f2f2f;">
-    <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center fw-semibold" href="home.php">
-        <img src="image/logo.png" alt="PASSA Logo" width="175" height="55" class="me-2">
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
-          <li class="nav-item"><a class="nav-link" href="request.html">Request</a></li>
-          <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
-        </ul>
-      </div>
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center fw-semibold" href="home.php">
+      <img src="image/logo.png" alt="PASSA Logo" width="175" height="55" class="me-2">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="home.php">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="add_item.php">Add Item</a></li>
+        <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+        <li class="nav-item"><a class="nav-link text-danger" href="#" id="logoutBtn">Logout</a></li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 
   <!-- Profile Info -->
 <div class="container mt-5">
@@ -163,7 +163,7 @@
   <div class="list-group" id="notificationsContainer">
     <p class="text-center text-muted">No notifications yet.</p>
   </div>
-</div> -->
+</div>-->
 
 
 <!-- Edit Item Modal -->
@@ -289,7 +289,7 @@
       console.log("✅ User safely initialized for Google login.");
     }
 
-    // Always load user data fresh
+        // Always load user data fresh
     userSnap = await get(userRef);
     const data = userSnap.val() || {};
 
@@ -344,16 +344,6 @@
       if (tradesCountEl) tradesCountEl.textContent = tradesCount;
     } catch (err) { console.error('trades count error', err); }
 
-    // unread notifications count
-    try {
-      const notifsSnap = await get(ref(db, `notifications/${currentUser.uid}`));
-      let unread = 0;
-      if (notifsSnap.exists()) {
-        Object.values(notifsSnap.val()).forEach(n => { if (!n.read) unread++; });
-      }
-      if (notifCountEl) notifCountEl.textContent = unread;
-    } catch (err) { console.error('notifications count error', err); }
-  
     // Keep your "uploaded items" section fully functional
     const itemsRef = ref(db, "items");
     onValue(itemsRef, (snapshot) => {
@@ -467,7 +457,7 @@
     window.location.href = "index.php";
   });
 
-  // --- My Trades Section ---
+// --- My Trades Section ---
 const tradeListContainer = document.getElementById("tradeListContainer");
 
 onAuthStateChanged(auth, async (user) => {
@@ -521,15 +511,24 @@ onAuthStateChanged(auth, async (user) => {
                 <hr>
                 <p><strong>Status:</strong> ${trade.status}</p>
                 <p><strong>Message:</strong> ${trade.message || 'No message'}</p>
-                <p><strong>With:</strong> ${otherUser.username || 'Unknown User'}</p>
+                <p><strong>With:</strong> ${otherUserId.username || 'Unknown User'}</p>
                 <small class="text-muted">${new Date(trade.timestamp).toLocaleString()}</small>
                 <div class="mt-3 text-center">
-                  <button class="btn btn-outline-primary btn-sm view-details" 
-                          data-receiver="${receiverId}" 
-                          data-proposer="${proposerId}" 
-                          data-key="${tradeKey}">
-                    View Details
-                  </button>
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary btn-sm view-details" 
+                            data-receiver="${receiverId}" 
+                            data-proposer="${proposerId}" 
+                            data-key="${tradeKey}">
+                      View Details
+                    </button>
+                    ${ (receiverId === user.uid || proposerId === user.uid) ? `
+                    <button class="btn btn-outline-danger btn-sm delete-trade"
+                            data-receiver="${receiverId}"
+                            data-proposer="${proposerId}"
+                            data-key="${tradeKey}">
+                      Delete
+                    </button>` : ''}
+                  </div>
                 </div>
               </div>`;
             tradeListContainer.appendChild(card);
@@ -549,6 +548,23 @@ onAuthStateChanged(auth, async (user) => {
         const proposerId = e.target.dataset.proposer;
         const tradeKey = e.target.dataset.key;
         loadTradeDetails(receiverId, proposerId, tradeKey);
+      });
+    });
+
+    // Inline delete from list
+    document.querySelectorAll(".delete-trade").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const receiverId = btn.dataset.receiver;
+        const proposerId = btn.dataset.proposer;
+        const tradeKey = btn.dataset.key;
+        if (!confirm("Are you sure you want to delete this trade? This cannot be undone.")) return;
+        try {
+          await remove(ref(db, `trades/${receiverId}/${proposerId}/${tradeKey}`));
+          showAlert("Trade deleted.", "danger");
+        } catch (err) {
+          console.error("Delete trade error:", err);
+          alert("Failed to delete trade.");
+        }
       });
     });
   });
